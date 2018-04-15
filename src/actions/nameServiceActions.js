@@ -1,5 +1,6 @@
 import { createActions } from 'spunky';
 import Neon from '@cityofzion/neon-js';
+import { trim } from 'lodash';
 
 export const ID = 'nameService';
 
@@ -18,20 +19,11 @@ const isLocal = (host) => {
 };
 
 const parse = (query) => {
-  try {
-    return new URL(query);
-  } catch (err) {
-    if (typeof query !== 'string' || query.match(/^[a-z0-9]:\/\//i)) {
-      throw err;
-    }
-    return parse(`nos://${query}`);
-  }
+  return new URL(query.includes('://') ? query : `nos://${query}`);
 };
 
 const lookup = async (query) => {
-  const url = parse(query);
-  console.log('url:', url);
-  const { host, pathname } = url;
+  const { host, pathname } = parse(trim(query));
   const formattedQuery = `${host}${pathname}`.replace(/\/$/, '');
 
   if (isNOS(host)) {
